@@ -11,9 +11,9 @@ import pprint # list型やdict型を見やすくprintするライブラリ
 key = 'AIzaSyDVTCkHziSZbbVQhDYrb9dvt3zISp5wEMI' # 作成したAPIキーを入れる
 client = googlemaps.Client(key) # インスタンス生成
 
-geocode_result = client.geocode('福岡県福岡市博多駅') # 位置情報を検索
+geocode_result = client.geocode('福岡県福岡市香椎駅') # 位置情報を検索
 loc = geocode_result[0]['geometry']['location'] # 経度；緯度の情報のみとりだす
-place_result = client.places_nearby(location=loc, radius=200, type='food') # 半径200m以内へのレストラン
+place_result = client.places_nearby(location=loc, radius=200, type='restaurant') # 半径200m以内へのレストラン
 pprint.pprint(place_result)
 
 
