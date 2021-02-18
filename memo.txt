@@ -1,0 +1,3 @@
+このファイルはなんでもメモとする
+Chromedriverの場所
+Linking Binary 'chromedriver' to '/usr/local/bin/chromedriver'
