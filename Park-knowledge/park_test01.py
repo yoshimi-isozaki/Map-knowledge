@@ -10,6 +10,10 @@ htmlのlistを選んで決定する動作が入る
 #seleniumとbeautifulsoupをインポート
 #import chromedriver_binary
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By # どんな作用なのか不明
 import time
 from bs4 import BeautifulSoup
 
@@ -18,6 +22,7 @@ driver = webdriver.Chrome("/usr/local/bin/chromedriver")
 # Google mapsを開く
 url = 'https://www.google.co.jp/maps/'
 driver.get(url)
+wait = WebDriverWait(driver, 20)
 
 time.sleep(3)
 
@@ -37,10 +42,19 @@ search_button.click() # クリックしている
 
 time.sleep(3)
 
-login_button = driver.find_element_by_class_name("section-result-title") # ログインボタンを取得
+#login_button = driver.find_element_by_class_name("section-result-title") # ログインボタンを取得
+login_button = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "section-result-title")))
 login_button.click() # クリックしている
 
 time.sleep(3)
+#//*[@id="pane"]/div/div[1]/div/div/div[4]/div[1]/div[1]
+list_one = None
+try:
+    list_one = wait.until(EC.element_to_be_clickable((By.XPATH, "*[@id='pane']/div/div[1]/div/div/div[4]/div[1]/div[1]")))
+except TimeoutException:
+    print('タイムアウト')
+else:
+    list_one.click()
 #/html/body/jsl/div[3]/div[9]/div[8]/div/div[1]/div/div/div[4]/div[1]/div[1]
 # xpass削る//*[@id="pane"]/div/div[1]/div/div/div[4]/div[1]/div[1]
 #1//*[@id="pane"]/div/div[1]/div/div/div[4]/div[1]
