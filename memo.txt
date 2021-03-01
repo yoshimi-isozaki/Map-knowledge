@@ -9,3 +9,23 @@ $ source venv/bin/activate
 
 Chromedriverの場所
 Linking Binary 'chromedriver' to '/usr/local/bin/chromedriver'
+
+======================================================
+以下は候補が複数ある場合に表示されるページの「1～2 の検索結果を表示しています」の
+文字列を取得するために描いたコードである。
+書いた当時は必要なかったが、候補項目の数を取得するために使うかもしれないので
+残しておく。
+
+#class="gm2-caption"
+
+# HTMLを解析
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, 'html.parser')
+
+all_gm2caption = soup.find_all(class_="gm2-caption")
+
+for hang in all_gm2caption:
+    if 'の検索結果を表示しています' in hang.text:
+        print(hang.text)
+
+======================================================
