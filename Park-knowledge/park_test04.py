@@ -47,7 +47,8 @@ for line in sample_dict_list:
     #park_name = list(sample_dict_list[1].values())[2]  # 公園名を取り出す
     park_name = line['公園名']
     park_name = park_name.translate(table)
-    print(park_name)
+    print('サンプルデータから取得し、数字を半角に修正したもの', park_name)
+    print()
     # url = 'https://www.geocoding.jp/?q=' + park_name + '%20公園%20福岡%20西区'# 野方８号公園用
     # url = 'https://www.geocoding.jp/?q=' + park_name + '%20公園%20福岡%20中央区' #大濠公園
     url = 'https://www.geocoding.jp/?q=' + park_name + '%20公園%20福岡%20' + ward  # 田村中央公園
@@ -70,7 +71,7 @@ for line in sample_dict_list:
             line = elem
 
     print('----------------')
-    print(line.text)  # [緯度: 33.560544 経度: 130.387521]
+    print('geocodingから取得した文字列', line.text)  # [緯度: 33.560544 経度: 130.387521]
 
     lat_long = {}  # latが緯度、longが経度
     ll_list = []
@@ -86,7 +87,7 @@ for line in sample_dict_list:
     print(list)  # [33.560544, 130.387521]となる
     lat_long['緯度'] = ll_list[0]
     lat_long['経度'] = ll_list[1]
-    print(lat_long)
+    print('geocodingから取得した文字列から辞書にした', lat_long)
 
     gm_link.click()  # googlemapへ飛ぶ
 
@@ -124,7 +125,7 @@ for line in sample_dict_list:
     # 施設名のspan//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]
     facility = wait.until(
         EC.element_to_be_clickable((By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]')))
-    print(facility.text)
+    print('googlemapから得た施設名facility.text', facility.text)
 
     # //*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]
     # 郵便番号[0]、住所[1]、施設名[2]、'-'[3]、'Googlge'[4]、'マップ'[5]のリスト
@@ -166,16 +167,29 @@ for line in sample_dict_list:
         print('否')
         judg = '否'
 
-    park_name_g = facility.text # googlemapの示す公園名。これを正式名称としたい。
-    line['GM公園名'] = park_name_g
-    line['合否'] = judg
+    map_info = {}
+    print('park_name_gを代入する直前のmap_infoのtypeは', type(map_info))
+    park_name_g = facility.text # googlemapの示す公園名。これを正式名称としたい
+    map_info['GM公園名'] = park_name_g
+    print('park_name_gのtypeは?', type(park_name_g))
+    print("map_info['GM公園名']", map_info['GM公園名'])
+    print('typeは?', type(map_info))
+    map_info['合否'] = judg
+    print("map_info['合否']", map_info['合否'])
+    print('typeは?', type(map_info))
 
-    line['緯度'] = ll_list[0]
-    line['経度'] = ll_list[1]
+    map_info['緯度'] = ll_list[0]
+    print("map_info['緯度']", map_info['緯度'])
+    print('typeは?', type(map_info))
+    map_info['経度'] = ll_list[1]
+    print("map_info['経度']", map_info['経度'])
+    print('typeは?', type(map_info))
     # ここでappend
-    print('構成データ', line)
+    print('最終的にデータベースのレコードとなる構成データ', map_info)
+    print('map_infoのtypeは?', type(map_info))
+    print('map_info.values()では?', map_info.values())
     print()
-    sample_dict_list_aft.append(line)
+    sample_dict_list_aft.append(map_info)
 
     time.sleep(3)# closeが早い?
     driver.close() # googleMapの方を閉じる
