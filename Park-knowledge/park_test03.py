@@ -39,6 +39,9 @@ driver.get(url)
 time.sleep(3)
 # "googlemaps"のリンク
 gm_link = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="result"]/span[4]/a')))
+search_word = driver.find_element_by_xpath('//*[@id="result"]/span[1]')#検索文字列取得
+print('検索文字列表示')
+print(search_word)
 page_source = driver.page_source
 
 # bs4でパース
@@ -84,6 +87,26 @@ driver.switch_to.window(driver.window_handles[1])
 # 遷移したことを確認するためにurlを取得する
 print(driver.current_url)
 
+# !!!!!!!!!!候補がある場合は詳細画面が表示される前!!!!!!!!
+
+
+
+# 郵便番号[0]、住所[1]、施設名[2]、'-'[3]、'Googlge'[4]、'マップ'[5]のリスト
+list_ad_name = driver.title.split()
+print(driver.title.split())
+# geocodingの検索文字列とgooglemapの<title>を比べてgooglemap上で検索候補が出たかどうかを知る
+search_judge = None # 検索文字列が一致した場合bool型trueが入る
+if '福岡' and '西区' in list_ad_name:
+    print('合')
+    search_judge = True
+else:
+    print('否')
+    search_judge = False
+print('search_judge', str(search_judge))
+
+
+
+
 # gm_link = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="result"]/span[4]/a')))
 # 候補リストの1番上が出るまで待つ
 time.sleep(3)
@@ -100,6 +123,7 @@ print(driver.title.split())
 
 # 郵便番号[0]、住所[1]、施設名[2]、'-'[3]、'Googlge'[4]、'マップ'[5]のリスト
 list_ad_name = driver.title.split()
+
 print(list_ad_name[2])
 print(type(list_ad_name[2]))
 if list_ad_name[2] == park_name:
@@ -113,4 +137,5 @@ elif list_ad_name[2] == park_name + '緑地':
 else:
     print('否')
 #例外処理
+
 
