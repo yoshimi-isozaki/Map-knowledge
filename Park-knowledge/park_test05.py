@@ -1,9 +1,8 @@
 """
-2021/03/01
-10:50
+2021/03/12
+10:32
 磯嵜佳果
-geocodingから情報を得るコード
-サンプルの情報をfor文で回す
+繰り返し処理中に止まった場合何度かやり直す処理を含める
 """
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
