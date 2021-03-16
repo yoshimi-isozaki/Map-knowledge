@@ -29,7 +29,7 @@ sample_dict_list = [{'区': '西区', '種別': '幼児', '公園名': '野方�
                     {'区': '博多区', '種別': '幼児', '公園名': '青木１号', '所在地': '青木一丁目217-8'},
                     {'区': '西区', '種別': '街区', '公園名': '元浜', '所在地': '元浜一丁目33-2'},
                     {'区': '西区', '種別': '風致', '公園名': 'かなたけの里', '所在地': '大字金武1282-2外'},
-                    #{'区': '早良区', '種別': '緑道', '公園名': '百道１号', '所在地': '百道浜三丁目901-21外'},
+                    {'区': '早良区', '種別': '緑道', '公園名': '百道１号', '所在地': '百道浜三丁目901-21外'},
                     {'区': '博多区', '種別': '都市緑地', '公園名': '那珂７号', '所在地': '那珂二丁目42-2'},
                     {'区': '中央区', '種別': '都市緑地', '公園名': '福浜１５号', '所在地': '福浜一丁目4-1'},
                     ]
@@ -58,11 +58,29 @@ def invert_digit(word: str):
         return word
 
 
-# 検索文字列としての公園名が
+# 検索結果が複数あった場合にリストの最上位要素を取得する
+def put_uper():
+    elem = None
+    try:
+        #elem = driver.find_element_by_xpath( '//*[@id="pane"]/div/div[1]/div/div/div[4]/div[1]/div[1]')
+        elem = wait.until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[4]/div[1]/div[1]')))
+        return elem
+    except TimeoutException:
+        print('もう一つの候補パターン')
+
+    try:
+        elem = driver.find_element_by_xpath('//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]')
+        return elem
+    except TimeoutException:
+        print('二つとも見つからなかった')
+    return False
+#//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]タイムアウトの方がいい?
+
 
 def latlonger(ward, facility, city, kind=None):
     print(kind)
-    print('緑地かな',  '緑地'in kind)
+    print('緑地かな',  '緑地' in kind)
     #facility = digit_zen_han(facility)  # 施設名に全角数字が混じっていた場合に半角にする
     # 検索文字列に種別を反映させる
     search_kind = None
@@ -122,11 +140,17 @@ def latlonger(ward, facility, city, kind=None):
     list_title = driver.title.split()
     print(driver.title.split())
 
-    # !!!!悪魔のコード!!!!
     search_judge = None  # 検索文字列が一致した場合bool型trueが入る
-    if '福岡' and ward in list_title:
+    if city and ward in list_title:
         print('合:候補がある場合')
         search_judge = True
+        first_list = put_uper()
+        if first_list:
+            first_list.click()
+        else:
+            print('この条件では検索できませんでした。' + facility + search_kind + city + ward)
+            return False
+        """
         # 候補の一番上を選びクリックする
         first_list = None
         try:
@@ -139,15 +163,17 @@ def latlonger(ward, facility, city, kind=None):
     else:
         print('否:すぐに詳細画面が表示される')
         search_judge = False
+    """
     print('search_judge', str(search_judge))
 
     print(driver.title.split())
     # 施設名のspan//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]
-    facility_webe = wait.until(
-        EC.element_to_be_clickable(
-            (By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]')))
+    try:
+        facility_webe = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]')))
+    except TimeoutException:
+        print('検索失敗です')
+        return False
     print('googlemapから得た施設名facility.text', facility_webe.text)
-    # 赤坂公園がなくて赤坂緑地があった場合赤坂緑地で合になってしまう。これはだめdす。種別を見て判断しないと。
     # 種別に'緑地'を含むならば'緑道'を含むならば
     judg_one = None
     judg_two = None
@@ -222,7 +248,7 @@ def latlonger(ward, facility, city, kind=None):
 
     time.sleep(3)  # closeが早い?
     driver.close()  # googleMapの方を閉じる
-    driver.switch_to.window(driver.window_handles[0])  # 動
+    driver.switch_to.window(driver.window_handles[0])  # 操作するタブをgeocodingの方へ移動する
 
     return map_info  # 一行のレコード
 
@@ -231,7 +257,14 @@ def latlonger(ward, facility, city, kind=None):
 # 新しいfor文。戻り値レコードを
 for line in sample_dict_list:
     record = latlonger(line['区'], line['公園名'], '福岡', line['種別'])
-    sample_dict_list_aft.append(record)
+    if record:
+        sample_dict_list_aft.append(record)
+    else:
+        driver.close()  # googleMapの方を閉じる
+        driver.switch_to.window(driver.window_handles[0])  # 操作するタブをgeocodingの方へ移動する
+        sample_dict_list_aft.append({'message': 'この行は失敗しました'})
+        print('失敗したのでハンドルを移動します')
+        continue# 検索が上手くいかなかった場合
 
 for line in sample_dict_list_aft:
     print(line)
