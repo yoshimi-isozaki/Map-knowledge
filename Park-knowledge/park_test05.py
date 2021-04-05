@@ -262,7 +262,7 @@ for line in sample_dict_list:
     else:
         driver.close()  # googleMapの方を閉じる
         driver.switch_to.window(driver.window_handles[0])  # 操作するタブをgeocodingの方へ移動する
-        sample_dict_list_aft.append({'message': 'この行は失敗しました'})
+        sample_dict_list_aft.append({'message': 'この行は失敗しました', '公園名': line['公園名']})
         print('失敗したのでハンドルを移動します')
         continue# 検索が上手くいかなかった場合
 
